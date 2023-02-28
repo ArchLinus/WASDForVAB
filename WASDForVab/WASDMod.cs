@@ -78,7 +78,12 @@ namespace KSPTestMod
 
                         if (Input.GetKey(KeyCode.LeftShift))
                         {
-                            inputVector *= 2;
+                            inputVector *= 2.0f;
+                        }
+
+                        if (Input.GetKey(KeyCode.LeftControl))
+                        {
+                            inputVector *= 0.5f;
                         }
 
                         if (!inputVector.IsZero())
