@@ -63,14 +63,16 @@ namespace KSPTestMod
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;
                 var currentYaw = patchState.cameraManager.gimbalTransform.transform.eulerAngles.y;
                 var newPitch = currentPitch + deltaPitch;
+
                 if (currentPitch > 180.0f && currentPitch + deltaPitch < 270.0f)
                 {
                     newPitch = 270.0f;
                 }
-                else if (currentPitch < 90.0f && currentPitch + deltaPitch > 90.0f)
+                else if (currentPitch < 90.0f && currentPitch + deltaPitch > 89.0f)
                 {
-                    newPitch = 90.0f;
+                    newPitch = 89.0f;
                 }
+
                 var newYaw = currentYaw + deltaYaw;
                 patchState.Logger.LogInfo("Pitch: " + newPitch);
                 patchState.Logger.LogInfo("Yaw: " + newYaw);
@@ -81,6 +83,6 @@ namespace KSPTestMod
                 lookPosition = patchState.cameraManager.gimbalTransform.position;
                 return false;
             }
-        };
+        }
     }
 }
