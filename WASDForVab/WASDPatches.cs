@@ -24,13 +24,10 @@ namespace KSPTestMod
 
             public void OnLoad(ObjectAssemblyCameraManager cameraManager, ManualLogSource Logger)
             {
-                Logger.LogInfo("WASDPatches::OnLoad was called");
                 this.Logger = Logger;
                 this.cameraManager = cameraManager;
                 pitch = cameraManager.CameraGimbal.transform.rotation.eulerAngles.x;
                 yaw = cameraManager.CameraGimbal.transform.rotation.eulerAngles.z;
-                Logger.LogInfo("Pitch: " + pitch);
-                Logger.LogInfo("Yaw: " + yaw);
             }
 
             public void OnMove(Vector3d inputVector, float deltaTime)
@@ -49,6 +46,14 @@ namespace KSPTestMod
 
         public static WASDPatchesState patchState = new WASDPatchesState();
 
+        // [HarmonyPatch(typeof(ObjectAssembly), "UpdateAssemblyIconsPosition")]
+        // class UpdateAssemblyIconsPositionPatch
+        // {
+        //     static void Postfix()
+        //     {
+        //     }
+        // }
+
         [HarmonyPatch(typeof(ObjectAssemblyPlacementTool), "ProcessInputCameraRotation")]
         class ProcessInputCameraRotationPatch
         {
@@ -59,10 +64,10 @@ namespace KSPTestMod
                     return true;
                 }
 
-                patchState.Logger.LogInfo("Euler: " + patchState.cameraManager.gimbalTransform.transform.eulerAngles);
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;
                 var currentYaw = patchState.cameraManager.gimbalTransform.transform.eulerAngles.y;
                 var newPitch = currentPitch + deltaPitch;
+                var newYaw = currentYaw + deltaYaw;
 
                 if (currentPitch > 180.0f && currentPitch + deltaPitch < 270.0f)
                 {
@@ -73,9 +78,6 @@ namespace KSPTestMod
                     newPitch = 89.0f;
                 }
 
-                var newYaw = currentYaw + deltaYaw;
-                patchState.Logger.LogInfo("Pitch: " + newPitch);
-                patchState.Logger.LogInfo("Yaw: " + newYaw);
                 Vector3d lookDir = new Vector3d(0, 0, 1);
                 lookRotation = QuaternionD.AngleAxis(newYaw, Vector3d.up) * QuaternionD.AngleAxis(newPitch, Vector3d.right);
                 lookDir = lookRotation * lookDir;
