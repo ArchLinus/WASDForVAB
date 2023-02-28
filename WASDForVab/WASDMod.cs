@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace KSPTestMod
 {
-    [BepInPlugin("io.archlinus.wasd_for_vab", "WASD for VAB", "0.1")]
+    [BepInPlugin("io.archlinus.wasd_for_vab", "WASD for VAB", "0.1.1")]
     public class WASDMod : BaseUnityPlugin
     {
         private GameInstance Game;
