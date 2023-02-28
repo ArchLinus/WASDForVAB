@@ -17,11 +17,11 @@ namespace KSPTestMod
     {
         private GameInstance Game;
 
-        private static Harmony harmony;
+        private Harmony harmony;
 
         private SubscriptionHandle loadSubscription;
 
-        public void Awake()
+        public void Start()
         {
             var assembly = Assembly.GetExecutingAssembly();
             harmony = Harmony.CreateAndPatchAll(assembly);
@@ -38,7 +38,7 @@ namespace KSPTestMod
 
         public void Update()
         {
-            if (Game == null && GameManager.Instance != null)
+            if (Game == null && GameManager.Instance != null && GameManager.Instance.Game != null)
             {
                 Game = GameManager.Instance.Game;
                 loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
