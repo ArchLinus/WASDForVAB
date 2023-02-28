@@ -21,7 +21,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "install",
+            "label": "install plugin",
             "dependsOn": [
                 "build"
             ],
@@ -29,12 +29,24 @@
             "command": "cp",
             "args": [
                 "WASDForVab\\bin\\Debug\\*",
-                "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Kerbal Space Program 2\\BepInEx\\scripts"
+                "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Kerbal Space Program 2\\BepInEx\\plugins"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+        },
+        {
+            "label": "install script",
+            "dependsOn": [
+                "build"
+            ],
+            "type": "shell",
+            "command": "cp",
+            "args": [
+                "WASDForVab\\bin\\Debug\\*",
+                "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Kerbal Space Program 2\\BepInEx\\script"
+            ],
         }
     ]
 }

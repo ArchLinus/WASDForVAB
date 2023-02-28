@@ -22,8 +22,10 @@ namespace KSPTestMod
             public ObjectAssemblyCameraManager cameraManager;
             public Vector3d cameraPos = new Vector3d();
 
-            public void OnLoad(ObjectAssemblyCameraManager cameraManager)
+            public void OnLoad(ObjectAssemblyCameraManager cameraManager, ManualLogSource Logger)
             {
+                Logger.LogInfo("WASDPatches::OnLoad was called");
+                this.Logger = Logger;
                 this.cameraManager = cameraManager;
                 pitch = cameraManager.CameraGimbal.transform.rotation.eulerAngles.x;
                 yaw = cameraManager.CameraGimbal.transform.rotation.eulerAngles.z;
@@ -52,6 +54,11 @@ namespace KSPTestMod
         {
             static bool Prefix(Vector3 orbitTargetPos, float prevYaw, float prevPitch, float deltaYaw, float deltaPitch, float distance, ref Quaternion lookRotation, ref Vector3 lookDirection, ref Vector3 lookPosition)
             {
+                if (patchState.Logger == null)
+                {
+                    return true;
+                }
+
                 patchState.Logger.LogInfo("Euler: " + patchState.cameraManager.gimbalTransform.transform.eulerAngles);
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;
                 var currentYaw = patchState.cameraManager.gimbalTransform.transform.eulerAngles.y;
@@ -67,8 +74,6 @@ namespace KSPTestMod
                 var newYaw = currentYaw + deltaYaw;
                 patchState.Logger.LogInfo("Pitch: " + newPitch);
                 patchState.Logger.LogInfo("Yaw: " + newYaw);
-                // patchState.yaw += deltaYaw;
-                // patchState.pitch += deltaPitch;
                 Vector3d lookDir = new Vector3d(0, 0, 1);
                 lookRotation = QuaternionD.AngleAxis(newYaw, Vector3d.up) * QuaternionD.AngleAxis(newPitch, Vector3d.right);
                 lookDir = lookRotation * lookDir;

@@ -15,7 +15,7 @@ namespace KSPTestMod
     [BepInPlugin("io.bepis.wasd_for_vab", "WASD for VAB", "1.0")]
     public class WASDMod : BaseUnityPlugin
     {
-        public GameInstance Game => GameManager.Instance.Game;
+        private GameInstance Game;
 
         private static Harmony harmony;
 
@@ -25,8 +25,6 @@ namespace KSPTestMod
         {
             var assembly = Assembly.GetExecutingAssembly();
             harmony = Harmony.CreateAndPatchAll(assembly);
-            WASDPatches.patchState.Logger = Logger;
-            loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
         }
 
         private void OnOABLoadFinalized(MessageCenterMessage msg)
@@ -34,12 +32,18 @@ namespace KSPTestMod
             if ((msg as OABLoadFinalizedMessage).isSnapshotLoaded)
             {
                 ObjectAssemblyBuilder current = Game.OAB.Current;
-                WASDPatches.patchState.OnLoad(current.CameraManager);
+                WASDPatches.patchState.OnLoad(current.CameraManager, Logger);
             }
         }
 
         public void Update()
         {
+            if (Game == null && GameManager.Instance != null)
+            {
+                Game = GameManager.Instance.Game;
+                loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
+            }
+
             if (Game != null)
             {
                 if (Game.OAB != null && Game.OAB.IsLoaded)
@@ -88,7 +92,11 @@ namespace KSPTestMod
 
         public void OnDestroy()
         {
-            Game.Messages.Unsubscribe(ref loadSubscription);
+            if (Game != null)
+            {
+                Game.Messages.Unsubscribe(ref loadSubscription);
+            }
+
             harmony.UnpatchSelf();
         }
 
