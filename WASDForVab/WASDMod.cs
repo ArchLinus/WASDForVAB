@@ -29,7 +29,7 @@ namespace KSPTestMod
 
         private void OnOABLoadFinalized(MessageCenterMessage msg)
         {
-            if ((msg as OABLoadFinalizedMessage).isSnapshotLoaded)
+            if (Game != null && Game.OAB != null && Game.OAB.Current != null)
             {
                 ObjectAssemblyBuilder current = Game.OAB.Current;
                 WASDPatches.patchState.OnLoad(current.CameraManager, Logger);

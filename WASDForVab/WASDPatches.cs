@@ -59,11 +59,6 @@ namespace KSPTestMod
         {
             static bool Prefix(Vector3 orbitTargetPos, float prevYaw, float prevPitch, float deltaYaw, float deltaPitch, float distance, ref Quaternion lookRotation, ref Vector3 lookDirection, ref Vector3 lookPosition)
             {
-                if (patchState.Logger == null)
-                {
-                    return true;
-                }
-
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;
                 var currentYaw = patchState.cameraManager.gimbalTransform.transform.eulerAngles.y;
                 var newPitch = currentPitch + deltaPitch;
