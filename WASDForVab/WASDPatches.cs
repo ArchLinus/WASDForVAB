@@ -21,6 +21,7 @@ namespace WASDForVAB
             public Vector3d cameraPos = new Vector3d();
             public bool isCtrlPressed = false;
             public bool isEnabled = true;
+            public WASDConfig config;
 
             public void OnLoad(ObjectAssemblyCameraManager cameraManager)
             {
@@ -66,10 +67,16 @@ namespace WASDForVAB
                     return true;
                 }
 
+                var cameraSensitivity = 1.0f;
+                if (patchState.config != null)
+                {
+                    cameraSensitivity = patchState.config.CameraSensitivity;
+                }
+
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;
                 var currentYaw = patchState.cameraManager.gimbalTransform.transform.eulerAngles.y;
-                var newPitch = currentPitch + deltaPitch;
-                var newYaw = currentYaw + deltaYaw;
+                var newPitch = currentPitch + (deltaPitch * cameraSensitivity);
+                var newYaw = currentYaw + (deltaYaw * cameraSensitivity);
 
                 if (currentPitch > 180.0f && currentPitch + deltaPitch < 270.0f)
                 {

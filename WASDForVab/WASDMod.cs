@@ -16,7 +16,7 @@ namespace WASDForVAB
 
         public override void OnInitialized()
         {
-            loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
+            loadSubscription = Game.Messages.PersistentSubscribe<OABLoadedMessage>(OnOABLoadFinalized);
 
             // Load the configuration
             if (ManagerLocator.TryGet(out ConfigurationManager configManager))
@@ -24,6 +24,8 @@ namespace WASDForVAB
                 if (configManager.TryGet(Info.mod_id, out var config))
                 {
                     WASDConfig cfg = (WASDConfig)config.configObject;
+                    WASDPatches.patchState.config = cfg;
+                    Logger.Info($"Camera sensitivity: {cfg.CameraSensitivity}");
                 }
                 else
                 {

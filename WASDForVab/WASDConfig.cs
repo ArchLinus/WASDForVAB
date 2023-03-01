@@ -5,10 +5,10 @@ namespace WASDForVAB
 {
     [ModConfig]
     [JsonObject(MemberSerialization.OptOut)]
-    class WASDConfig
+    public class WASDConfig
     {
         [ConfigField("CameraSensitivity")]
         [ConfigDefaultValue(1.0f)]
-        public float CameraSensitivity;
+        public float CameraSensitivity = 1.0f;
     }
 }

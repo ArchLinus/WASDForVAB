@@ -186,8 +186,8 @@
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>
-      copy /Y "$(SolutionDir)WASDForVAB\bin\Debug\WASDForVAB.dll" "$(SolutionDir)wasd_for_vab/bin/WASDForVAB.dll"
-      copy /Y "$(SolutionDir)WASDForVAB\bin\Debug\WASDForVAB.pdb" "$(SolutionDir)wasd_for_vab/bin/WASDForVAB.pdb"
+      copy /Y "$(SolutionDir)WASDForVAB\bin\Debug\net472\WASDForVAB.dll" "$(SolutionDir)wasd_for_vab/bin/WASDForVAB.dll"
+      copy /Y "$(SolutionDir)WASDForVAB\bin\Debug\net472\WASDForVAB.pdb" "$(SolutionDir)wasd_for_vab/bin/WASDForVAB.pdb"
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
