@@ -11,5 +11,5 @@ WASD mode can be toggled on or off using alt+w.
 
 ## Installation instructions
 
-* [Install BepinEx for KSP 2](https://spacedock.info/mod/3255/BepInEx%20for%20KSP%202)
-* Add WASDForVab.dll into your BepInEx/plugins directory
+* [Install SpaceWarp](https://spacedock.info/mod/3257/Space%20Warp)
+* Extract wasd_for_vab.zip to your KSP folder
