@@ -13,6 +13,7 @@ namespace WASDForVAB
     public class WASDMod : Mod
     {
         private SubscriptionHandle loadSubscription;
+        private WASDConfig config = new WASDConfig();
 
         public override void OnInitialized()
         {
@@ -24,6 +25,7 @@ namespace WASDForVAB
                 if (configManager.TryGet(Info.mod_id, out var config))
                 {
                     WASDConfig cfg = (WASDConfig)config.configObject;
+                    this.config = cfg;
                     WASDPatches.patchState.config = cfg;
                     Logger.Info($"Camera sensitivity: {cfg.CameraSensitivity}");
                 }
@@ -93,12 +95,12 @@ namespace WASDForVAB
 
                         if (Input.GetKey(KeyCode.LeftShift))
                         {
-                            inputVector *= 2.0f;
+                            inputVector *= config.FastSpeedMultiplier;
                         }
 
                         if (Input.GetKey(KeyCode.LeftControl))
                         {
-                            inputVector *= 0.5f;
+                            inputVector *= config.SlowSpeedMultiplier;
                             WASDPatches.patchState.isCtrlPressed = true;
                         }
 

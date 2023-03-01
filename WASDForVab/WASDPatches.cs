@@ -38,7 +38,14 @@ namespace WASDForVAB
                     Vector3d right = -Vector3d.Cross(forward, Vector3d.up);
                     Vector3d up = Vector3d.up;
                     Vector3d movement = forward * inputVector.z + right * inputVector.x + up * inputVector.y;
-                    movement *= deltaTime * movementSpeed;
+                    if (config != null)
+                    {
+                        movement *= deltaTime * config.BaseSpeed;
+                    }
+                    else
+                    {
+                        movement *= deltaTime * movementSpeed;
+                    }
                     cameraManager.gimbalTransform.position = cameraManager.gimbalTransform.position + movement;
                 }
             }
