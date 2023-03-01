@@ -26,11 +26,7 @@
                 "build"
             ],
             "type": "shell",
-            "command": "cp",
-            "args": [
-                "WASDForVab\\bin\\Debug\\*",
-                "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Kerbal Space Program 2\\BepInEx\\plugins"
-            ],
+            "command": "./installmod.ps1",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -44,7 +40,7 @@
             "type": "shell",
             "command": "cp",
             "args": [
-                "WASDForVab\\bin\\Debug\\*",
+                "WASDForVab\\bin\\Debug\\WASDForVAB.dll",
                 "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Kerbal Space Program 2\\BepInEx\\script"
             ],
             "group": {

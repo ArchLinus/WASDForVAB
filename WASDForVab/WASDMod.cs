@@ -1,30 +1,39 @@
-﻿using System;
-using BepInEx;
-using I2.Loc;
-using KSP.Game;
-using KSP.Modules;
-using KSP.OAB;
-using KSP.Sim;
+﻿using KSP.OAB;
 using UnityEngine;
 using HarmonyLib;
 using KSP.Messages;
 using System.Reflection;
+using SpaceWarp.API.Mods;
+using SpaceWarp.API.Configuration;
+using SpaceWarp.API.Managers;
 
-namespace KSPTestMod
+namespace WASDForVAB
 {
-    [BepInPlugin("io.archlinus.wasd_for_vab", "WASD for VAB", "0.1.2")]
-    public class WASDMod : BaseUnityPlugin
+    [MainMod]
+    public class WASDMod : Mod
     {
-        private GameInstance Game;
-
-        private Harmony harmony;
-
         private SubscriptionHandle loadSubscription;
 
-        public void Start()
+        public override void OnInitialized()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            harmony = Harmony.CreateAndPatchAll(assembly);
+            loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
+
+            // Load the configuration
+            if (ManagerLocator.TryGet(out ConfigurationManager configManager))
+            {
+                if (configManager.TryGet(Info.mod_id, out var config))
+                {
+                    WASDConfig cfg = (WASDConfig)config.configObject;
+                }
+                else
+                {
+                    Logger.Warn($"Failed to find configuration for {Info.mod_id}");
+                }
+            }
+            else
+            {
+                Logger.Error($"Failed to find configuration manager");
+            }
         }
 
         private void OnOABLoadFinalized(MessageCenterMessage msg)
@@ -32,18 +41,12 @@ namespace KSPTestMod
             if (Game != null && Game.OAB != null && Game.OAB.Current != null)
             {
                 ObjectAssemblyBuilder current = Game.OAB.Current;
-                WASDPatches.patchState.OnLoad(current.CameraManager, Logger);
+                WASDPatches.patchState.OnLoad(current.CameraManager);
             }
         }
 
         public void Update()
         {
-            if (Game == null && GameManager.Instance != null && GameManager.Instance.Game != null)
-            {
-                Game = GameManager.Instance.Game;
-                loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
-            }
-
             WASDPatches.patchState.isCtrlPressed = false;
             if (Game != null)
             {
@@ -112,9 +115,6 @@ namespace KSPTestMod
             {
                 Game.Messages.Unsubscribe(ref loadSubscription);
             }
-
-            harmony.UnpatchSelf();
         }
-
     }
 }

@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using BepInEx.Logging;
 using HarmonyLib;
 
-namespace KSPTestMod
+namespace WASDForVAB
 {
     public class WASDPatches
     {
@@ -17,16 +16,14 @@ namespace KSPTestMod
             public float yaw = 0;
             public float pitch = 0;
             public Vector3d lookDirection;
-            public ManualLogSource Logger;
             public float movementSpeed = 20.5f;
             public ObjectAssemblyCameraManager cameraManager;
             public Vector3d cameraPos = new Vector3d();
             public bool isCtrlPressed = false;
             public bool isEnabled = true;
 
-            public void OnLoad(ObjectAssemblyCameraManager cameraManager, ManualLogSource Logger)
+            public void OnLoad(ObjectAssemblyCameraManager cameraManager)
             {
-                this.Logger = Logger;
                 this.cameraManager = cameraManager;
                 pitch = cameraManager.CameraGimbal.transform.rotation.eulerAngles.x;
                 yaw = cameraManager.CameraGimbal.transform.rotation.eulerAngles.z;
@@ -34,7 +31,7 @@ namespace KSPTestMod
 
             public void OnMove(Vector3d inputVector, float deltaTime)
             {
-                if (cameraManager != null)
+                if (cameraManager != null && isEnabled)
                 {
                     Vector3d forward = cameraManager.gimbalTransform.transform.forward;
                     Vector3d right = -Vector3d.Cross(forward, Vector3d.up);
