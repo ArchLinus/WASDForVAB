@@ -21,6 +21,8 @@ namespace KSPTestMod
             public float movementSpeed = 20.5f;
             public ObjectAssemblyCameraManager cameraManager;
             public Vector3d cameraPos = new Vector3d();
+            public bool isCtrlPressed = false;
+            public bool isEnabled = true;
 
             public void OnLoad(ObjectAssemblyCameraManager cameraManager, ManualLogSource Logger)
             {
@@ -46,19 +48,27 @@ namespace KSPTestMod
 
         public static WASDPatchesState patchState = new WASDPatchesState();
 
-        // [HarmonyPatch(typeof(ObjectAssembly), "UpdateAssemblyIconsPosition")]
-        // class UpdateAssemblyIconsPositionPatch
-        // {
-        //     static void Postfix()
-        //     {
-        //     }
-        // }
+        [HarmonyPatch(typeof(ObjectAssemblyInputHandler), "OnSelectAllPrimaryAssembly")]
+        class OnSelectAllPrimaryAssemblyPatch
+        {
+            static bool Prefix()
+            {
+                // Prevent ctrl+A binding from firing while we're in control
+                return !patchState.isCtrlPressed;
+            }
+        };
+
 
         [HarmonyPatch(typeof(ObjectAssemblyPlacementTool), "ProcessInputCameraRotation")]
         class ProcessInputCameraRotationPatch
         {
             static bool Prefix(Vector3 orbitTargetPos, float prevYaw, float prevPitch, float deltaYaw, float deltaPitch, float distance, ref Quaternion lookRotation, ref Vector3 lookDirection, ref Vector3 lookPosition)
             {
+                if (!patchState.isEnabled)
+                {
+                    return true;
+                }
+
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;
                 var currentYaw = patchState.cameraManager.gimbalTransform.transform.eulerAngles.y;
                 var newPitch = currentPitch + deltaPitch;

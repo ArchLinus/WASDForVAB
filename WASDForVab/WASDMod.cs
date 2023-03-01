@@ -44,10 +44,20 @@ namespace KSPTestMod
                 loadSubscription = Game.Messages.Subscribe<OABLoadFinalizedMessage>(OnOABLoadFinalized);
             }
 
+            WASDPatches.patchState.isCtrlPressed = false;
             if (Game != null)
             {
                 if (Game.OAB != null && Game.OAB.IsLoaded)
                 {
+                    // Toggle WASD cam on ALT+w
+                    if (Input.GetKey(KeyCode.LeftAlt))
+                    {
+                        if (Input.GetKeyDown(KeyCode.W))
+                        {
+                            WASDPatches.patchState.isEnabled = !WASDPatches.patchState.isEnabled;
+                        }
+                    }
+
                     if (Input.GetMouseButton(1))
                     {
                         Vector3d inputVector = new Vector3d();
@@ -84,6 +94,7 @@ namespace KSPTestMod
                         if (Input.GetKey(KeyCode.LeftControl))
                         {
                             inputVector *= 0.5f;
+                            WASDPatches.patchState.isCtrlPressed = true;
                         }
 
                         if (!inputVector.IsZero())
