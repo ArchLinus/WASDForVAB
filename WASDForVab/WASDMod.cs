@@ -14,6 +14,7 @@ namespace WASDForVAB
     {
         private SubscriptionHandle loadSubscription;
         private WASDConfig config = new WASDConfig();
+        private bool slowToggled = false;
 
         public override void OnInitialized()
         {
@@ -42,10 +43,48 @@ namespace WASDForVAB
 
         private void OnOABLoadFinalized(MessageCenterMessage msg)
         {
+            slowToggled = false;
+            WASDPatches.patchState.isEnabled = true;
             if (Game != null && Game.OAB != null && Game.OAB.Current != null)
             {
                 ObjectAssemblyBuilder current = Game.OAB.Current;
                 WASDPatches.patchState.OnLoad(current.CameraManager);
+            }
+        }
+
+        public bool TryGetKey(string keyName)
+        {
+            if (keyName.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                return Input.GetKey(keyName);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+                return false;
+            }
+        }
+
+        public bool TryGetKeyDown(string keyName)
+        {
+            if (keyName.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                return Input.GetKeyDown(keyName);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+                return false;
             }
         }
 
@@ -68,39 +107,48 @@ namespace WASDForVAB
                     if (config.RequireRightClickForControl && !Input.GetMouseButton(1))
                         return;
 
+                    if (TryGetKeyDown(config.KeySlowToggle.ToLowerInvariant()))
+                    {
+                        slowToggled = !slowToggled;
+                    }
+
                     Vector3d inputVector = new Vector3d();
 
-                    if (Input.GetKey(config.KeyForward.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyForward.ToLowerInvariant()))
                     {
                         inputVector.z = 1;
                     }
-                    if (Input.GetKey(config.KeyBack.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyBack.ToLowerInvariant()))
                     {
                         inputVector.z = -1;
                     }
-                    if (Input.GetKey(config.KeyRight.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyRight.ToLowerInvariant()))
                     {
                         inputVector.x = 1;
                     }
-                    if (Input.GetKey(config.KeyLeft.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyLeft.ToLowerInvariant()))
                     {
                         inputVector.x = -1;
                     }
-                    if (Input.GetKey(config.KeyUp.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyUp.ToLowerInvariant()))
                     {
                         inputVector.y = 1;
                     }
-                    if (Input.GetKey(config.KeyDown.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyDown.ToLowerInvariant()))
                     {
                         inputVector.y = -1;
                     }
-                    if (Input.GetKey(config.KeyFast.ToLowerInvariant()))
+                    if (TryGetKey(config.KeyFast.ToLowerInvariant()))
                     {
                         inputVector *= config.FastSpeedMultiplier;
                     }
-                    if (Input.GetKey(config.KeySlow.ToLowerInvariant()))
+                    if (slowToggled || TryGetKey(config.KeySlow.ToLowerInvariant()))
                     {
                         inputVector *= config.SlowSpeedMultiplier;
+                    }
+
+                    if (Input.GetKey(KeyCode.LeftControl))
+                    {
                         WASDPatches.patchState.isCtrlPressed = true;
                     }
 

@@ -57,6 +57,10 @@ namespace WASDForVAB
 
         [ConfigField("KeySlow")]
         [ConfigDefaultValue("LEFT CTRL")]
-        public string KeySlow = "LEFT CTRL";        
+        public string KeySlow = "LEFT CTRL";
+
+        [ConfigField("KeySlowToggle")]
+        [ConfigDefaultValue("")]
+        public string KeySlowToggle = "";
     }
 }
