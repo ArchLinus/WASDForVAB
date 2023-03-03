@@ -65,49 +65,48 @@ namespace WASDForVAB
                         }
                     }
 
-                    if (Input.GetMouseButton(1))
+                    if (config.RequireRightClickForControl && !Input.GetMouseButton(1))
+                        return;
+
+                    Vector3d inputVector = new Vector3d();
+
+                    if (Input.GetKey(config.KeyForward.ToLowerInvariant()))
                     {
-                        Vector3d inputVector = new Vector3d();
-                        if (Input.GetKey(KeyCode.W))
-                        {
-                            inputVector.z = 1;
-                        }
-                        if (Input.GetKey(KeyCode.S))
-                        {
-                            inputVector.z = -1;
-                        }
-                        if (Input.GetKey(KeyCode.D))
-                        {
-                            inputVector.x = 1;
-                        }
-                        if (Input.GetKey(KeyCode.A))
-                        {
-                            inputVector.x = -1;
-                        }
-                        if (Input.GetKey(KeyCode.E))
-                        {
-                            inputVector.y = 1;
-                        }
-                        if (Input.GetKey(KeyCode.Q))
-                        {
-                            inputVector.y = -1;
-                        }
+                        inputVector.z = 1;
+                    }
+                    if (Input.GetKey(config.KeyBack.ToLowerInvariant()))
+                    {
+                        inputVector.z = -1;
+                    }
+                    if (Input.GetKey(config.KeyRight.ToLowerInvariant()))
+                    {
+                        inputVector.x = 1;
+                    }
+                    if (Input.GetKey(config.KeyLeft.ToLowerInvariant()))
+                    {
+                        inputVector.x = -1;
+                    }
+                    if (Input.GetKey(config.KeyUp.ToLowerInvariant()))
+                    {
+                        inputVector.y = 1;
+                    }
+                    if (Input.GetKey(config.KeyDown.ToLowerInvariant()))
+                    {
+                        inputVector.y = -1;
+                    }
+                    if (Input.GetKey(config.KeyFast.ToLowerInvariant()))
+                    {
+                        inputVector *= config.FastSpeedMultiplier;
+                    }
+                    if (Input.GetKey(config.KeySlow.ToLowerInvariant()))
+                    {
+                        inputVector *= config.SlowSpeedMultiplier;
+                        WASDPatches.patchState.isCtrlPressed = true;
+                    }
 
-                        if (Input.GetKey(KeyCode.LeftShift))
-                        {
-                            inputVector *= config.FastSpeedMultiplier;
-                        }
-
-                        if (Input.GetKey(KeyCode.LeftControl))
-                        {
-                            inputVector *= config.SlowSpeedMultiplier;
-                            WASDPatches.patchState.isCtrlPressed = true;
-                        }
-
-                        if (!inputVector.IsZero())
-                        {
-                            WASDPatches.patchState.OnMove(inputVector, Time.deltaTime);
-                        }
+                    if (!inputVector.IsZero())
+                    {
+                        WASDPatches.patchState.OnMove(inputVector, Time.deltaTime);
                     }
                 }
             }
