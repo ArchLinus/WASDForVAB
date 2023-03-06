@@ -8,148 +8,110 @@ using BepInEx;
 using BepInEx.Configuration;
 using System.Reflection;
 
-namespace WASDForVAB
+namespace WASDForVAB;
+[BepInPlugin("com.archlinus.wasd_for_vab", "WASD For VAB", "0.3.0")]
+[BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
+public class WASDMod : BaseSpaceWarpPlugin
 {
-    [BepInPlugin("com.archlinus.wasd_for_vab", "WASD For VAB", "0.3.0")]
-    [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
-    public class WASDMod : BaseSpaceWarpPlugin
+    private SubscriptionHandle loadSubscription;
+    private WASDConfig config = new WASDConfig();
+    private bool slowToggled = false;
+    private Harmony harmony;
+
+    public override void OnInitialized()
     {
-        private SubscriptionHandle loadSubscription;
-        private WASDConfig config = new WASDConfig();
-        private bool slowToggled = false;
-        private Harmony harmony;
+        loadSubscription = Game.Messages.PersistentSubscribe<OABLoadedMessage>(OnOABLoadFinalized);
+        config.Initialize(Config);
+        harmony = new Harmony("com.archlinus.wasd_for_vab");
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
+    }
 
-        public override void OnInitialized()
+    private void OnOABLoadFinalized(MessageCenterMessage msg)
+    {
+        slowToggled = false;
+        WASDPatches.patchState.isEnabled = true;
+        if (Game != null && Game.OAB != null && Game.OAB.Current != null)
         {
-            loadSubscription = Game.Messages.PersistentSubscribe<OABLoadedMessage>(OnOABLoadFinalized);
-            config.Initialize(Config);
-            harmony = new Harmony("com.archlinus.wasd_for_vab");
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            ObjectAssemblyBuilder current = Game.OAB.Current;
+            WASDPatches.patchState.OnLoad(current.CameraManager);
         }
+    }
 
-        private void OnOABLoadFinalized(MessageCenterMessage msg)
+    public void Update()
+    {
+        WASDPatches.patchState.isCtrlPressed = false;
+        if (Game != null)
         {
-            slowToggled = false;
-            WASDPatches.patchState.isEnabled = true;
-            if (Game != null && Game.OAB != null && Game.OAB.Current != null)
+            if (Game.OAB != null && Game.OAB.IsLoaded)
             {
-                ObjectAssemblyBuilder current = Game.OAB.Current;
-                WASDPatches.patchState.OnLoad(current.CameraManager);
-            }
-        }
-
-        public bool TryGetKey(string keyName)
-        {
-            if (keyName.Length == 0)
-            {
-                return false;
-            }
-
-            try
-            {
-                return Input.GetKey(keyName);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e.ToString());
-                return false;
-            }
-        }
-
-        public bool TryGetKeyDown(string keyName)
-        {
-            if (keyName.Length == 0)
-            {
-                return false;
-            }
-
-            try
-            {
-                return Input.GetKeyDown(keyName);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
-                return false;
-            }
-        }
-
-        public void Update()
-        {
-            WASDPatches.patchState.isCtrlPressed = false;
-            if (Game != null)
-            {
-                if (Game.OAB != null && Game.OAB.IsLoaded)
+                // Toggle WASD cam on ALT+w
+                if (config.KeyToggleEnabled.Value.IsDown())
                 {
-                    // Toggle WASD cam on ALT+w
-                    if (config.KeyToggleEnabled.Value.IsDown())
-                    {
-                        WASDPatches.patchState.isEnabled = !WASDPatches.patchState.isEnabled;
-                    }
+                    WASDPatches.patchState.isEnabled = !WASDPatches.patchState.isEnabled;
+                }
 
-                    if (config.RequireRightClickForControl.Value && !Input.GetMouseButton(1))
-                        return;
+                if (config.RequireRightClickForControl.Value && !Input.GetMouseButton(1))
+                    return;
 
-                    if (Input.GetKeyDown(config.KeySlowToggle.Value))
-                    {
-                        slowToggled = !slowToggled;
-                    }
+                if (Input.GetKeyDown(config.KeySlowToggle.Value))
+                {
+                    slowToggled = !slowToggled;
+                }
 
-                    Vector3d inputVector = new Vector3d();
+                Vector3d inputVector = new Vector3d();
 
-                    if (Input.GetKey(config.KeyForward.Value))
-                    {
-                        inputVector.z = 1;
-                    }
-                    if (Input.GetKey(config.KeyBack.Value))
-                    {
-                        inputVector.z = -1;
-                    }
-                    if (Input.GetKey(config.KeyRight.Value))
-                    {
-                        inputVector.x = 1;
-                    }
-                    if (Input.GetKey(config.KeyLeft.Value))
-                    {
-                        inputVector.x = -1;
-                    }
-                    if (Input.GetKey(config.KeyUp.Value))
-                    {
-                        inputVector.y = 1;
-                    }
-                    if (Input.GetKey(config.KeyDown.Value))
-                    {
-                        inputVector.y = -1;
-                    }
-                    if (Input.GetKey(config.KeyFast.Value))
-                    {
-                        inputVector *= config.FastSpeedMultiplier.Value;
-                    }
-                    if (slowToggled || Input.GetKey(config.KeySlow.Value))
-                    {
-                        inputVector *= config.SlowSpeedMultiplier.Value;
-                    }
+                if (Input.GetKey(config.KeyForward.Value))
+                {
+                    inputVector.z = 1;
+                }
+                if (Input.GetKey(config.KeyBack.Value))
+                {
+                    inputVector.z = -1;
+                }
+                if (Input.GetKey(config.KeyRight.Value))
+                {
+                    inputVector.x = 1;
+                }
+                if (Input.GetKey(config.KeyLeft.Value))
+                {
+                    inputVector.x = -1;
+                }
+                if (Input.GetKey(config.KeyUp.Value))
+                {
+                    inputVector.y = 1;
+                }
+                if (Input.GetKey(config.KeyDown.Value))
+                {
+                    inputVector.y = -1;
+                }
+                if (Input.GetKey(config.KeyFast.Value))
+                {
+                    inputVector *= config.FastSpeedMultiplier.Value;
+                }
+                if (slowToggled || Input.GetKey(config.KeySlow.Value))
+                {
+                    inputVector *= config.SlowSpeedMultiplier.Value;
+                }
 
-                    if (Input.GetKey(KeyCode.LeftControl))
-                    {
-                        WASDPatches.patchState.isCtrlPressed = true;
-                    }
+                if (Input.GetKey(KeyCode.LeftControl))
+                {
+                    WASDPatches.patchState.isCtrlPressed = true;
+                }
 
-                    if (!inputVector.IsZero())
-                    {
-                        WASDPatches.patchState.OnMove(inputVector, Time.deltaTime);
-                    }
+                if (!inputVector.IsZero())
+                {
+                    WASDPatches.patchState.OnMove(inputVector, Time.deltaTime);
                 }
             }
         }
+    }
 
-        public void OnDestroy()
+    public void OnDestroy()
+    {
+        if (Game != null)
         {
-            if (Game != null)
-            {
-                Game.Messages.Unsubscribe(ref loadSubscription);
-            }
-            harmony.UnpatchSelf();
+            Game.Messages.Unsubscribe(ref loadSubscription);
         }
+        harmony.UnpatchSelf();
     }
 }
