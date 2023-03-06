@@ -40,7 +40,7 @@ namespace WASDForVAB
                     Vector3d movement = forward * inputVector.z + right * inputVector.x + up * inputVector.y;
                     if (config != null)
                     {
-                        movement *= deltaTime * config.BaseSpeed;
+                        movement *= deltaTime * config.BaseSpeed.Value;
                     }
                     else
                     {
@@ -77,7 +77,7 @@ namespace WASDForVAB
                 var cameraSensitivity = 1.0f;
                 if (patchState.config != null)
                 {
-                    cameraSensitivity = patchState.config.CameraSensitivity;
+                    cameraSensitivity = patchState.config.CameraSensitivity.Value;
                 }
 
                 var currentPitch = patchState.cameraManager.gimbalTransform.transform.eulerAngles.x;

@@ -1,66 +1,41 @@
-using SpaceWarp.API.Configuration;
-using Newtonsoft.Json;
+using BepInEx.Configuration;
+using UnityEngine;
+namespace WASDForVAB;
 
-namespace WASDForVAB
+public class WASDConfig
 {
-    [ModConfig]
-    [JsonObject(MemberSerialization.OptOut)]
-    public class WASDConfig
+    public ConfigEntry<float> CameraSensitivity;
+    public ConfigEntry<float> BaseSpeed;
+    public ConfigEntry<float> FastSpeedMultiplier;
+    public ConfigEntry<float> SlowSpeedMultiplier;
+    public ConfigEntry<bool> RequireRightClickForControl;
+    public ConfigEntry<KeyboardShortcut> KeyToggleEnabled;
+    public ConfigEntry<KeyCode> KeyForward;
+    public ConfigEntry<KeyCode> KeyLeft;
+    public ConfigEntry<KeyCode> KeyBack;
+    public ConfigEntry<KeyCode> KeyRight;
+    public ConfigEntry<KeyCode> KeyUp;
+    public ConfigEntry<KeyCode> KeyDown;
+    public ConfigEntry<KeyCode> KeyFast;
+    public ConfigEntry<KeyCode> KeySlow;
+    public ConfigEntry<KeyCode> KeySlowToggle;
+
+    public void Initialize(ConfigFile Config)
     {
-        [ConfigField("CameraSensitivity")]
-        [ConfigDefaultValue(1.0f)]
-        public float CameraSensitivity = 1.0f;
-
-        [ConfigField("BaseSpeed")]
-        [ConfigDefaultValue(20.0f)]
-        public float BaseSpeed = 20.0f;
-
-        [ConfigField("FastSpeedMultiplier")]
-        [ConfigDefaultValue(3.0f)]
-        public float FastSpeedMultiplier = 3.0f;
-
-        [ConfigField("SlowSpeedMultiplier")]
-        [ConfigDefaultValue(0.4f)]
-        public float SlowSpeedMultiplier = 0.4f;
-
-        [ConfigField("RequireRightClickForControl")]
-        [ConfigDefaultValue(true)]
-        public bool RequireRightClickForControl = true;
-
-        [ConfigField("KeyForward")]
-        [ConfigDefaultValue("W")]
-        public string KeyForward = "W";
-
-        [ConfigField("KeyBack")]
-        [ConfigDefaultValue("S")]
-        public string KeyBack = "S";
-
-        [ConfigField("KeyRight")]
-        [ConfigDefaultValue("D")]
-        public string KeyRight = "D";
-
-        [ConfigField("KeyLeft")]
-        [ConfigDefaultValue("A")]
-        public string KeyLeft = "A";
-
-        [ConfigField("KeyUp")]
-        [ConfigDefaultValue("E")]
-        public string KeyUp = "E";
-
-        [ConfigField("KeyDown")]
-        [ConfigDefaultValue("Q")]
-        public string KeyDown = "Q";
-
-        [ConfigField("KeyFast")]
-        [ConfigDefaultValue("LEFT SHIFT")]
-        public string KeyFast = "LEFT SHIFT";
-
-        [ConfigField("KeySlow")]
-        [ConfigDefaultValue("LEFT CTRL")]
-        public string KeySlow = "LEFT CTRL";
-
-        [ConfigField("KeySlowToggle")]
-        [ConfigDefaultValue("")]
-        public string KeySlowToggle = "";
+        CameraSensitivity = Config.Bind("Settings", "Camera Sensitivity", 1.0f);
+        BaseSpeed = Config.Bind("Settings", "Base Speed", 20.0f);
+        FastSpeedMultiplier = Config.Bind("Settings", "Fast Speed Multiplier", 3.0f);
+        SlowSpeedMultiplier = Config.Bind("Settings", "Slow Speed Multiplier", 0.4f);
+        RequireRightClickForControl = Config.Bind("Settings", "Require Right Click For Control", true);
+        KeyToggleEnabled = Config.Bind("Settings", "Key Toggle Enabled", new KeyboardShortcut(KeyCode.W, KeyCode.LeftAlt));
+        KeyForward = Config.Bind("Settings", "Key Forward", KeyCode.W);
+        KeyLeft = Config.Bind("Settings", "Key Left", KeyCode.A);
+        KeyBack = Config.Bind("Settings", "Key Back", KeyCode.S);
+        KeyRight = Config.Bind("Settings", "Key Right", KeyCode.D);
+        KeyUp = Config.Bind("Settings", "Key Up", KeyCode.E);
+        KeyDown = Config.Bind("Settings", "Key Down", KeyCode.Q);
+        KeyFast = Config.Bind("Settings", "Key Fast", KeyCode.LeftShift);
+        KeySlow = Config.Bind("Settings", "Key Slow", KeyCode.LeftControl);
+        KeySlowToggle = Config.Bind("Settings", "Key Slow Toggle", KeyCode.None);
     }
 }

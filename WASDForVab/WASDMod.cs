@@ -2,43 +2,29 @@
 using UnityEngine;
 using HarmonyLib;
 using KSP.Messages;
-using System.Reflection;
+using SpaceWarp;
 using SpaceWarp.API.Mods;
-using SpaceWarp.API.Configuration;
-using SpaceWarp.API.Managers;
+using BepInEx;
+using BepInEx.Configuration;
+using System.Reflection;
 
 namespace WASDForVAB
 {
-    [MainMod]
-    public class WASDMod : Mod
+    [BepInPlugin("com.archlinus.wasd_for_vab", "WASD For VAB", "0.3.0")]
+    [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
+    public class WASDMod : BaseSpaceWarpPlugin
     {
         private SubscriptionHandle loadSubscription;
         private WASDConfig config = new WASDConfig();
         private bool slowToggled = false;
+        private Harmony harmony;
 
         public override void OnInitialized()
         {
             loadSubscription = Game.Messages.PersistentSubscribe<OABLoadedMessage>(OnOABLoadFinalized);
-
-            // Load the configuration
-            if (ManagerLocator.TryGet(out ConfigurationManager configManager))
-            {
-                if (configManager.TryGet(Info.mod_id, out var config))
-                {
-                    WASDConfig cfg = (WASDConfig)config.configObject;
-                    this.config = cfg;
-                    WASDPatches.patchState.config = cfg;
-                    Logger.Info($"Camera sensitivity: {cfg.CameraSensitivity}");
-                }
-                else
-                {
-                    Logger.Warn($"Failed to find configuration for {Info.mod_id}");
-                }
-            }
-            else
-            {
-                Logger.Error($"Failed to find configuration manager");
-            }
+            config.Initialize(Config);
+            harmony = new Harmony("com.archlinus.wasd_for_vab");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
 
         private void OnOABLoadFinalized(MessageCenterMessage msg)
@@ -65,7 +51,7 @@ namespace WASDForVAB
             }
             catch (Exception e)
             {
-                Logger.Error(e.ToString());
+                Logger.LogError(e.ToString());
                 return false;
             }
         }
@@ -83,7 +69,7 @@ namespace WASDForVAB
             }
             catch (Exception e)
             {
-                Logger.Error(e.ToString());
+                Logger.LogError(e);
                 return false;
             }
         }
@@ -96,55 +82,52 @@ namespace WASDForVAB
                 if (Game.OAB != null && Game.OAB.IsLoaded)
                 {
                     // Toggle WASD cam on ALT+w
-                    if (Input.GetKey(KeyCode.LeftAlt))
+                    if (config.KeyToggleEnabled.Value.IsDown())
                     {
-                        if (Input.GetKeyDown(KeyCode.W))
-                        {
-                            WASDPatches.patchState.isEnabled = !WASDPatches.patchState.isEnabled;
-                        }
+                        WASDPatches.patchState.isEnabled = !WASDPatches.patchState.isEnabled;
                     }
 
-                    if (config.RequireRightClickForControl && !Input.GetMouseButton(1))
+                    if (config.RequireRightClickForControl.Value && !Input.GetMouseButton(1))
                         return;
 
-                    if (TryGetKeyDown(config.KeySlowToggle.ToLowerInvariant()))
+                    if (Input.GetKeyDown(config.KeySlowToggle.Value))
                     {
                         slowToggled = !slowToggled;
                     }
 
                     Vector3d inputVector = new Vector3d();
 
-                    if (TryGetKey(config.KeyForward.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyForward.Value))
                     {
                         inputVector.z = 1;
                     }
-                    if (TryGetKey(config.KeyBack.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyBack.Value))
                     {
                         inputVector.z = -1;
                     }
-                    if (TryGetKey(config.KeyRight.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyRight.Value))
                     {
                         inputVector.x = 1;
                     }
-                    if (TryGetKey(config.KeyLeft.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyLeft.Value))
                     {
                         inputVector.x = -1;
                     }
-                    if (TryGetKey(config.KeyUp.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyUp.Value))
                     {
                         inputVector.y = 1;
                     }
-                    if (TryGetKey(config.KeyDown.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyDown.Value))
                     {
                         inputVector.y = -1;
                     }
-                    if (TryGetKey(config.KeyFast.ToLowerInvariant()))
+                    if (Input.GetKey(config.KeyFast.Value))
                     {
-                        inputVector *= config.FastSpeedMultiplier;
+                        inputVector *= config.FastSpeedMultiplier.Value;
                     }
-                    if (slowToggled || TryGetKey(config.KeySlow.ToLowerInvariant()))
+                    if (slowToggled || Input.GetKey(config.KeySlow.Value))
                     {
-                        inputVector *= config.SlowSpeedMultiplier;
+                        inputVector *= config.SlowSpeedMultiplier.Value;
                     }
 
                     if (Input.GetKey(KeyCode.LeftControl))
@@ -166,6 +149,7 @@ namespace WASDForVAB
             {
                 Game.Messages.Unsubscribe(ref loadSubscription);
             }
+            harmony.UnpatchSelf();
         }
     }
 }

@@ -4,7 +4,7 @@
     "name": "WASD For VAB",
     "description": "Converts VAB camera to a WASD flycam",
     "source": "https://github.com/ArchLinus/WASDForVAB",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "dependencies": [],
     "ksp2_version": {
         "min": "0.1.0",
